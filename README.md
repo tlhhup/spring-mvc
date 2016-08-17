@@ -63,3 +63,75 @@ ajax请求返回json数据
 			}
 			return;
 		}
+4. springmvc的执行流程(通过注解方式)
+	1. 先调用`DispatcherServlet.doDispatch(HttpServletRequest,HttpServletResponse)`,获取指定的处理器映射器，在通过该映射器获取处理器适配器决定调用的方法
+
+			// Determine handler for the current request.获取映射器
+			mappedHandler = getHandler(processedRequest);
+			if (mappedHandler == null || mappedHandler.getHandler() == null) {
+				noHandlerFound(processedRequest, response);
+				return;
+			}
+
+			// Determine handler adapter for the current request.获取处理器适配器
+			HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
+
+			....
+
+			// Actually invoke the handler. 处理器适配调用，返回modelandview
+			mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
+	2. 调用`AbstractHandlerMethodAdapter.handle(HttpServletRequest, HttpServletResponse, Object)`方法
+
+			public final ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler)
+					throws Exception {
+		
+				return handleInternal(request, response, (HandlerMethod) handler);
+			}
+	3. 调用`RequestMappingHandlerAdapter.handleInternal(HttpServletRequest, HttpServletResponse, HandlerMethod)`方法
+
+			protected ModelAndView handleInternal(HttpServletRequest request,
+				HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
+				...
+		
+				mav = invokeHandlerMethod(request, response, handlerMethod);
+				...
+		
+				return mav;
+			}
+	4. 调用`RequestMappingHandlerAdapter.invokeHandlerMethod(HttpServletRequest, HttpServletResponse, HandlerMethod)`方法
+
+			protected ModelAndView invokeHandlerMethod(HttpServletRequest request,HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
+				
+				ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
+				...
+				//调用方法
+				invocableMethod.invokeAndHandle(webRequest, mavContainer);
+				...
+				//获取视图
+				return getModelAndView(mavContainer, modelFactory, webRequest);
+			}
+	5. 调用`ServletInvocableHandlerMethod.invokeAndHandle(ServletWebRequest, ModelAndViewContainer, Object...)`方法
+		
+			public void invokeAndHandle(ServletWebRequest webRequest,
+				ModelAndViewContainer mavContainer, Object... providedArgs) throws Exception {
+				//调用目标方法，这个有点像aop
+				Object returnValue = invokeForRequest(webRequest, mavContainer, providedArgs);
+				...
+				try {
+					//处理返回值
+					this.returnValueHandlers.handleReturnValue(
+							returnValue, getReturnValueType(returnValue), mavContainer, webRequest);
+				}
+				...
+			}
+	6. 调用`HandlerMethodReturnValueHandlerComposite.handleReturnValue(Object, MethodParameter, ModelAndViewContainer, NativeWebRequest)`方法
+
+			public void handleReturnValue(Object returnValue, MethodParameter returnType,
+					ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
+				//选择不同的返回值处理器
+				HandlerMethodReturnValueHandler handler = selectHandler(returnValue, returnType);
+				...
+				handler.handleReturnValue(returnValue, returnType, mavContainer, webRequest);
+			}
+	7. 如果是json及添加了@ResponseBody注解的方法，则调用`RequestResponseBodyMethodProcessor.handleReturnValue(Object, MethodParameter, ModelAndViewContainer, NativeWebRequest)`方法处理json数据输出
+	8. 再调用`AbstractMessageConverterMethodProcessor.writeWithMessageConverters(T, MethodParameter, ServletServerHttpRequest, ServletServerHttpResponse)`方法将json数据输出的body中
