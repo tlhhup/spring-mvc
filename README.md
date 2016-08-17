@@ -5,29 +5,30 @@ ajax请求返回json数据
 
 1. 使用springmvc4.2时返回json数据需要引入jackson的jar包，因为springmvc对json数据的转换时通过MappingJackson2JsonView来处理的，而从源码中可以看到如下信息
 
-![](http://i.imgur.com/OQGZvJo.png)
-使用的是jackson提供的类，需要引入以下的jar包
+	![](http://i.imgur.com/OQGZvJo.png)
 
-	<dependency>
-		<groupId>com.fasterxml.jackson.core</groupId>
-		<artifactId>jackson-core</artifactId>
-		<version>2.7.3</version>
-	</dependency>
-	<dependency>
-		<groupId>com.fasterxml.jackson.core</groupId>
-		<artifactId>jackson-databind</artifactId>
-		<version>2.7.3</version>
-	</dependency>
-	<dependency>
-		<groupId>com.fasterxml.jackson.core</groupId>
-		<artifactId>jackson-annotations</artifactId>
-		<version>2.7.3</version>
-	</dependency>
-	<dependency>
-		<groupId>com.fasterxml.jackson.module</groupId>
-		<artifactId>jackson-module-jaxb-annotations</artifactId>
-		<version>2.7.3</version>
-	</dependency>
+	使用的是jackson提供的类，需要引入以下的jar包
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.7.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.7.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>2.7.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-jaxb-annotations</artifactId>
+			<version>2.7.3</version>
+		</dependency>
 
 2. 在spring3.1之前需要配置messageconvertors对json数据进行转换，在使用spring3.1之后的版本只需要在springmvc的配置文件中添加如下配置即可
 
