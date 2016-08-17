@@ -34,7 +34,7 @@ ajax请求返回json数据
 
 		<!-- 模型驱动 -->
 		<mvc:annotation-driven />
-3. **在返回json格式的数据的时候**，springmvc的请求的后缀不能为.html或.htm，不然即是添加了@ResponseBody注解也会报406的错误，其主要原因在于源码中处理json数据是会调用`AbstractMessageConverterMethodProcessor.writeWithMessageConverters`该方法，会对请求获取的content-type和返回的content-type进行匹配，然而如果请求的后缀为.html或.htm获取的请求的后缀都为`text/html`，无法匹配json类型的数据，则报406的错误
+3. **在返回json格式的数据的时候**，springmvc的请求的后缀不能为.html或.htm，不然即是添加了@ResponseBody注解也会报406的错误，其主要原因在于源码中处理json数据是会调用`AbstractMessageConverterMethodProcessor.writeWithMessageConverters`该方法，会对请求获取的content-type和返回的content-type进行匹配，然而如果请求的后缀为.html或.htm获取的请求的所支持的数据类型都为`text/html`，无法匹配json类型的数据，则报406的错误
 
 		Class<?> returnValueClass = getReturnValueType(returnValue, returnType);
 		Type returnValueType = getGenericType(returnType);
